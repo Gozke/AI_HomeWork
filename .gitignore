@@ -1,0 +1,30 @@
+###################
+# Compiled source #
+###################
+*.class
+
+
+*/bin
+*/ebin
+*/build
+*/classes
+*/deployment
+*/gen-src
+*/test-bin
+
+*/src/org/apache/*
+*/kpt7g6.zip
+
+*/bin/*
+*/ebin/*
+*/build/*
+*/classes/*
+*/deployment/*
+*/gen-src/*
+*/test-bin/*
+*/stage/*
+
+######################
+# OS generated files #
+######################
+Thumbs.db
