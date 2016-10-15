@@ -5,24 +5,25 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 
-import edu.bme.mit.kpt7g6.NeuralNetwork.ActivationFunctions.ActivationFunction;
-import edu.bme.mit.kpt7g6.NeuralNetwork.Structure.Ilayer;
-import edu.bme.mit.kpt7g6.NeuralNetwork.Structure.Layer;
+import org.apache.commons.math3.linear.RealVector;
+import org.apache.commons.math3.linear.RealVectorFormat;
+
+import edu.bme.mit.kpt7g6.NeuralNetwork.Structure.NeuralNetwork;
+import edu.bme.mit.kpt7g6.NeuralNetwork.Utils.NNSolutionUtils;
 
 public class NNSolutionTwo {
 	public static void main(String[] args) throws IOException{
-		BufferedReader stdInreader = new BufferedReader(new InputStreamReader(System.in));
+		BufferedReader stdInReader = new BufferedReader(new InputStreamReader(System.in));
 		
-		String architechtureStr = stdInreader.readLine();
-		String[] arhStrParams = architechtureStr.split(",");
-		int noInputs = Integer.parseInt(arhStrParams[0]);
-		int noOutput = Integer.parseInt(arhStrParams[arhStrParams.length-1]);
-
+		NeuralNetwork network = NNSolutionUtils.buildNetworkFromParams(stdInReader);
+		List<double[]> inputValues  = NNSolutionUtils.readInputValues(stdInReader);
 		
+		RealVectorFormat formatter = new RealVectorFormat("", "", ",");
+		System.out.println(inputValues.size());
+		for(double[] input : inputValues){
+			RealVector outputVector = network.calculateOutputForInputValues(input);
+			System.out.println(formatter.format(outputVector));
+		}
 	}
 	
-	public static Layer crateLayer(List<double[]> weights, List<Double> biasvalues, Ilayer prevLayer, ActivationFunction f){
-		
-		return null;
-	}
 }
