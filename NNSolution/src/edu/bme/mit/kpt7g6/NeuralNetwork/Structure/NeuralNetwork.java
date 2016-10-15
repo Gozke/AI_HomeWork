@@ -25,7 +25,7 @@ public class NeuralNetwork {
 		return getOutputLayer().getOutput();
 	}
 	
-	public void appendLayerToNetwork(Layer layerToAppend){
+	public void appendLayer(Layer layerToAppend){
 		layers.add(layerToAppend);
 	}
 	

@@ -14,7 +14,7 @@ public class Layer implements Ilayer {
 	/**
 	 * The activation function to apply to each output value 
 	 */
-	private final ActivationFunction activationFunction;
+	private ActivationFunction activationFunction;
 
 	/**
 	 * This vector stores the biases of the neurons in this layer. The nth
@@ -112,6 +112,11 @@ public class Layer implements Ilayer {
 		}
 		
 		return sb.toString();
+	}
+
+	@Override
+	public void setActivationFunction(ActivationFunction newActivationFunction) {
+		activationFunction = newActivationFunction;
 	}
 	
 	

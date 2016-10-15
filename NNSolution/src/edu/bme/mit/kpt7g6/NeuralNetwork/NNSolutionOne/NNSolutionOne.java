@@ -25,12 +25,12 @@ public class NNSolutionOne {
 			int noNeuronsInLayer = Integer.parseInt(arhStrParams[i]);
 			Layer layer = new Layer(noNeuronsInLayer, network.getOutputLayer(), ReLuActivationFunction.INSTANCE);
 			initLayerWeightsAndBias(layer, network.getOutputLayer().getNumerOfNuerons());
-			network.appendLayerToNetwork(layer);
+			network.appendLayer(layer);
 		}
 		
 		Layer outputLayer = new Layer(noOutput, network.getOutputLayer(), LinearActivationFunction.INSTANCE);
 		initLayerWeightsAndBias(outputLayer,  network.getOutputLayer().getNumerOfNuerons());
-		network.appendLayerToNetwork(outputLayer);
+		network.appendLayer(outputLayer);
 		
 		System.out.println(architechtureStr);
 		for(Layer l : network.getNonInputLayers()){
