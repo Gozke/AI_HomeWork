@@ -25,17 +25,24 @@ public class NeuralNetwork {
 		return getOutputLayer().getOutput();
 	}
 	
+	public void setInputValues(double[] inputValues){
+		inputLayer.setInputValues(inputValues);
+	}
+	
 	public void appendLayer(Layer layerToAppend){
+		getOutputLayer().setNextLayer(layerToAppend);
 		layers.add(layerToAppend);
 	}
 	
+
 	/**
-	 * Returns a non null list of the hidden layers. If there are no hidden layers an empty list is returned.
+	 * Returns the nTh layer of the network. The input layer cannot be accessed with this method.
 	 * 
-	 * @return List of the hidden layer or an empty list. (never {@code null})
+	 * @param layerIndex the 1 based index of the layer to get.
+	 * @return the nth layer of the neural network. 
 	 */
-	public List<Layer> getHiddenLayers(){
-		return layers.size() > 1 ? layers.subList(0, layers.size()-2) : new  ArrayList<>(0);
+	public Layer getNthLayer(int layerIndex){
+		return layers.get(layerIndex-1);
 	}
 	
 	public List<Layer> getNonInputLayers(){
@@ -49,4 +56,17 @@ public class NeuralNetwork {
 	public Ilayer getOutputLayer(){
 		return layers.isEmpty() ? inputLayer :  layers.get(layers.size()-1);
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder strRep = new StringBuilder();
+		strRep.append(inputLayer.getNumerOfNuerons());
+		for(Layer l : layers){
+			strRep.append(",");
+			strRep.append(l.numberOfNeurons);
+		}
+		return strRep.toString();
+	}
+	
+	
 }

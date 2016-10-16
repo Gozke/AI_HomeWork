@@ -2,6 +2,7 @@ package edu.bme.mit.kpt7g6.NeuralNetwork.ActivationFunctions;
 
 public class ReLuActivationFunction extends ActivationFunction {
 	public static final ReLuActivationFunction INSTANCE = new ReLuActivationFunction();
+	public static final DeriviatedReLuActivationFunction DERIVED_INSTANCE = new DeriviatedReLuActivationFunction();
 
 	/**
 	 * Returns 0 if value is negative value otherwise.
@@ -9,6 +10,11 @@ public class ReLuActivationFunction extends ActivationFunction {
 	@Override
 	public double processValue(double value) {
 		return Math.max(0, value);
+	}
+
+	@Override
+	public ActivationFunction derivative() {
+		return DERIVED_INSTANCE;
 	}
 
 	protected static class DeriviatedReLuActivationFunction extends ActivationFunction {

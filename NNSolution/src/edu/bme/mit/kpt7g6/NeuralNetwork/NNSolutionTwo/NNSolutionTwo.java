@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
 import org.apache.commons.math3.linear.RealVectorFormat;
 
@@ -24,6 +26,7 @@ public class NNSolutionTwo {
 			RealVector outputVector = network.calculateOutputForInputValues(input);
 			System.out.println(formatter.format(outputVector));
 		}
+		Array2DRowRealMatrix m = new Array2DRowRealMatrix();
 	}
 	
 }

@@ -9,6 +9,7 @@ import edu.bme.mit.kpt7g6.NeuralNetwork.ActivationFunctions.ActivationFunction;
 
 public class Layer implements Ilayer {
 	private Ilayer previousLayer;
+	private Layer nextLayer;
 	public final int numberOfNeurons;
 	
 	/**
@@ -45,12 +46,13 @@ public class Layer implements Ilayer {
 	}
 
 	/**
-	 * Sets the reference to the previous layer in the network. Called when the layer in appended to a neural network.
+	 * Sets the reference to the next layer in the network. Called when a new layer in appended to a neural network.
 	 * 
-	 * @param prevLayere reference to the previous layer in the network.
+	 * @param nextLayer reference to the next layer in the network.
 	 */
-	public void setPreviousLayer(Ilayer prevLayere){
-		previousLayer = prevLayere;
+	@Override
+	public void setNextLayer(Layer nextLayer){
+		this.nextLayer = nextLayer;
 	}
 	
 	/**
@@ -89,7 +91,7 @@ public class Layer implements Ilayer {
 
 	@Override
 	public RealVector getOutput() {
-		RealVector s = biases.add(weights.operate(previousLayer.getOutput()));
+		RealVector s = computeNetInput();
 		return s.mapToSelf(activationFunction);
 	}
 
@@ -98,6 +100,26 @@ public class Layer implements Ilayer {
 		return numberOfNeurons;
 	}
 
+	/**
+	 * 
+	 * @return the vector of bias values in this layer
+	 */
+	public RealVector getBiases(){
+		return biases;
+	}
+	
+	public RealMatrix getWeightsMatrix(){
+		return weights;
+	}
+	
+	/**
+	 * Computes the net input of the layer. 
+	 * @return s
+	 */
+	public RealVector computeNetInput(){
+		return biases.add(weights.operate(previousLayer.getOutput()));
+	}
+	
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -119,5 +141,40 @@ public class Layer implements Ilayer {
 		activationFunction = newActivationFunction;
 	}
 	
+	public RealMatrix computePartialDerivativeOfWeightsAndBiases(){
+		RealVector deltaVector = computeDelta();
+		RealVector inputVector = previousLayer.getOutput();
+		RealMatrix derivativeOfWeights = deltaVector.outerProduct(inputVector);
+		
+		RealMatrix result = new Array2DRowRealMatrix(derivativeOfWeights.getRowDimension(), derivativeOfWeights.getColumnDimension()+1);
+		result.setSubMatrix(derivativeOfWeights.getData(), 0, 0);
+		result.setColumnVector(result.getColumnDimension()-1, deltaVector);
+		
+		return result;
+	}
+
+	private RealVector computeDelta(){
+		// l == L
+		if(nextLayer == null){
+			return new ArrayRealVector(numberOfNeurons,1);
+		}
+				
+		RealVector nextDelta = nextLayer.computeDelta();
+		RealMatrix nextWeights = nextLayer.getWeightsMatrix();
+		RealMatrix diagonalOfDerivedNetInputs = getDiagonalMatrixOfNetInputDerivatives();
+				
+		// nextLayer.computeDelta() * nextLayer.getWeightsMatrix() * getDiagonalMatrixOfNetInputDerivatives() {f'(s)}
+		RealVector result = diagonalOfDerivedNetInputs.preMultiply(nextWeights.preMultiply(nextDelta));
+		return result;
+	}
 	
+	private RealMatrix getDiagonalMatrixOfNetInputDerivatives(){
+		RealVector s = computeNetInput().map(activationFunction.derivative());
+		RealMatrix res = new Array2DRowRealMatrix(s.getDimension(),s.getDimension());
+		for(int i = 0; i<s.getDimension();i++){
+			res.setEntry(i, i, s.getEntry(i));
+		}
+		
+		return res;
+	}
 }

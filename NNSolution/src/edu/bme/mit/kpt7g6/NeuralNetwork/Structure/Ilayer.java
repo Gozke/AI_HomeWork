@@ -6,9 +6,13 @@ import edu.bme.mit.kpt7g6.NeuralNetwork.ActivationFunctions.ActivationFunction;
 
 public interface Ilayer {
 
-	RealVector getOutput();
+	public RealVector getOutput();
 	
 	public int getNumerOfNuerons();
 
 	public void setActivationFunction(ActivationFunction newActivationFunction);
+	
+	default public void setNextLayer(Layer nextLayer){
+		
+	};
 }
