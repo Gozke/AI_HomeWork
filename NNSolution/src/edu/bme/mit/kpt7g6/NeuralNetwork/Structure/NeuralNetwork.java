@@ -9,7 +9,6 @@ import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
 
 import edu.bme.mit.kpt7g6.NeuralNetwork.Utils.CompleteInput;
-import edu.bme.mit.kpt7g6.NeuralNetwork.Utils.NNSolutionUtils;
 
 public class NeuralNetwork {
 	private InputLayer inputLayer;
@@ -54,6 +53,10 @@ public class NeuralNetwork {
 			for(Layer layer : getNonInputLayers()){
 				layer.updateWeightsAndBiases(updatedWeights.get(layer), updatedBias.get(layer));
 			}
+			for(Layer l : layers){
+				System.out.println(l);
+			}
+			System.out.println();
 		}
 	}
 	

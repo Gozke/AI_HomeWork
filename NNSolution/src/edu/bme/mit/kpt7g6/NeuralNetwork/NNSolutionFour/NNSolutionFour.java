@@ -37,7 +37,7 @@ public class NNSolutionFour {
 			network.performLearning(trainerInputs, breavnessFactor);
 			
 			double squaredMeanError = performValidation(network, validatingInputs);
-			System.out.format("%.6f", squaredMeanError);
+			System.out.format("%.6f\n", squaredMeanError);
 		}
 		
 		System.out.println(network.toString());
@@ -47,13 +47,14 @@ public class NNSolutionFour {
 		
 	}	
 	
-	
 	private static double performValidation(NeuralNetwork network, List<CompleteInput> validatingSamples){
+		System.out.println("Hibak:");
 		RealVector errorAccumulator = new ArrayRealVector(network.getOutputLayer().getNumerOfNuerons());
 		for(CompleteInput sample : validatingSamples){
 			RealVector actualOutput = network.calculateOuputFor(sample.getInputVector());
 			RealVector errorSquared = sample.getExpectedOutput().subtract(actualOutput).mapToSelf(new Power(2)); 
 			errorAccumulator = errorAccumulator.add(errorSquared);
+			System.out.println(errorSquared);
 		}
 		errorAccumulator.mapDivideToSelf(validatingSamples.size());
 		double entryAvarage = 0;
