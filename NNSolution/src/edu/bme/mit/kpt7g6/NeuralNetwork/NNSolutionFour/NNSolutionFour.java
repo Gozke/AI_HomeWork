@@ -37,7 +37,7 @@ public class NNSolutionFour {
 			network.performLearning(trainerInputs, breavnessFactor);
 			
 			double squaredMeanError = performValidation(network, validatingInputs);
-			System.out.println(squaredMeanError);
+			System.out.format("%.6f", squaredMeanError);
 		}
 		
 		System.out.println(network.toString());

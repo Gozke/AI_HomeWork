@@ -3,6 +3,8 @@ package edu.bme.mit.kpt7g6.NeuralNetwork.Utils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -18,6 +20,7 @@ import edu.bme.mit.kpt7g6.NeuralNetwork.Structure.NeuralNetwork;
 public class NNSolutionUtils {
 	public static RealVectorFormat VECTOR_FORMATTER = new RealVectorFormat("", "", ",");
 	public static RealMatrixFormat MATRIX_FORMATTER= new RealMatrixFormat("", "", "", "", "\n", ",");
+	public static NumberFormat DOUBLE_FORMATTER = new DecimalFormat("#0.000");
 	
 	public static List<double[]> readInputValues(BufferedReader stdInReader) throws NumberFormatException, IOException{
 		int noInputs = Integer.parseInt(stdInReader.readLine());

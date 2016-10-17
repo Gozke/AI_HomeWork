@@ -1,10 +1,11 @@
 package edu.bme.mit.kpt7g6.NeuralNetwork.Structure;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.apache.commons.math3.analysis.UnivariateFunction;
-import org.apache.commons.math3.linear.ArrayRealVector;
+import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
 
 import edu.bme.mit.kpt7g6.NeuralNetwork.Utils.CompleteInput;
@@ -39,14 +40,19 @@ public class NeuralNetwork {
 			setInputVector(sample.getInputVector());
 			RealVector actualOutput = calculateOutput();
 			RealVector errorVector = sample.getExpectedOutput().subtract(actualOutput);
-			System.out.println("Kimenet: " +NNSolutionUtils.VECTOR_FORMATTER.format(actualOutput));
-			System.out.println("hiba*mu*2: " + errorVector.getEntry(0)*braveness*2);
 			
+			Map<Layer, RealMatrix> updatedWeights = new HashMap<>();
+			Map<Layer, RealVector> updatedBias = new HashMap<>();
 			for (Layer layer : getNonInputLayers()) {
-				layer.updateWeightsAndBiases(new ArrayRealVector(errorVector), braveness);
+				RealMatrix pDerives = layer.computePartialDerivativeOfWeightsAndBiases(errorVector);
+				RealMatrix derivativeOfWeights = pDerives.getSubMatrix(0, pDerives.getRowDimension()-1, 0, pDerives.getColumnDimension()-2);
+				RealVector derivativeOfBiases = pDerives.getColumnVector(pDerives.getColumnDimension()-1);
+
+				updatedWeights.put(layer, layer.getWeightsMatrix().add(derivativeOfWeights.scalarMultiply(2*braveness)));
+				updatedBias.put(layer, layer.getBiases().add(derivativeOfBiases.mapMultiply(2*braveness)));
 			}
-			for(Layer l : getNonInputLayers()){
-				System.out.println(l);
+			for(Layer layer : getNonInputLayers()){
+				layer.updateWeightsAndBiases(updatedWeights.get(layer), updatedBias.get(layer));
 			}
 		}
 	}

@@ -142,13 +142,9 @@ public class Layer implements Ilayer {
 		activationFunction = newActivationFunction;
 	}
 	
-	public void updateWeightsAndBiases(RealVector error, double braveness){
-		RealMatrix pDerives = computePartialDerivativeOfWeightsAndBiases(error);
-		RealMatrix derivativeOfWeights = pDerives.getSubMatrix(0, pDerives.getRowDimension()-1, 0, pDerives.getColumnDimension()-2);
-		RealVector derivativeOfBiases = pDerives.getColumnVector(pDerives.getColumnDimension()-1);
-		System.out.println(NNSolutionUtils.MATRIX_FORMATTER.format(pDerives));
-		weights = weights.add(derivativeOfWeights.scalarMultiply(2*braveness));
-		biases = biases.add(derivativeOfBiases.mapMultiply(2*braveness));
+	public void updateWeightsAndBiases(RealMatrix newWeights, RealVector newBiases){
+		biases = newBiases;
+		weights = newWeights;
 	}
 	
 	public RealMatrix computePartialDerivativeOfWeightsAndBiases(RealVector errorVector){
@@ -187,4 +183,11 @@ public class Layer implements Ilayer {
 		
 		return res;
 	}
+
+	@Override
+	public int hashCode() {
+		return weights.hashCode() + biases.hashCode() + 37;
+	}
+	
+	
 }
