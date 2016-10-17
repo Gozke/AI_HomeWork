@@ -6,6 +6,7 @@ import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
 
 import edu.bme.mit.kpt7g6.NeuralNetwork.ActivationFunctions.ActivationFunction;
+import edu.bme.mit.kpt7g6.NeuralNetwork.Utils.NNSolutionUtils;
 
 public class Layer implements Ilayer {
 	private Ilayer previousLayer;
@@ -141,8 +142,17 @@ public class Layer implements Ilayer {
 		activationFunction = newActivationFunction;
 	}
 	
-	public RealMatrix computePartialDerivativeOfWeightsAndBiases(){
-		RealVector deltaVector = computeDelta();
+	public void updateWeightsAndBiases(RealVector error, double braveness){
+		RealMatrix pDerives = computePartialDerivativeOfWeightsAndBiases(error);
+		RealMatrix derivativeOfWeights = pDerives.getSubMatrix(0, pDerives.getRowDimension()-1, 0, pDerives.getColumnDimension()-2);
+		RealVector derivativeOfBiases = pDerives.getColumnVector(pDerives.getColumnDimension()-1);
+		System.out.println(NNSolutionUtils.MATRIX_FORMATTER.format(pDerives));
+		weights = weights.add(derivativeOfWeights.scalarMultiply(2*braveness));
+		biases = biases.add(derivativeOfBiases.mapMultiply(2*braveness));
+	}
+	
+	public RealMatrix computePartialDerivativeOfWeightsAndBiases(RealVector errorVector){
+		RealVector deltaVector = computeDelta(errorVector);
 		RealVector inputVector = previousLayer.getOutput();
 		RealMatrix derivativeOfWeights = deltaVector.outerProduct(inputVector);
 		
@@ -153,16 +163,16 @@ public class Layer implements Ilayer {
 		return result;
 	}
 
-	private RealVector computeDelta(){
 		// l == L
+	private RealVector computeDelta(RealVector errorVector){
 		if(nextLayer == null){
-			return new ArrayRealVector(numberOfNeurons,1);
+			return errorVector;
 		}
-				
-		RealVector nextDelta = nextLayer.computeDelta();
+
+		RealVector nextDelta = nextLayer.computeDelta(errorVector);
 		RealMatrix nextWeights = nextLayer.getWeightsMatrix();
 		RealMatrix diagonalOfDerivedNetInputs = getDiagonalMatrixOfNetInputDerivatives();
-				
+
 		// nextLayer.computeDelta() * nextLayer.getWeightsMatrix() * getDiagonalMatrixOfNetInputDerivatives() {f'(s)}
 		RealVector result = diagonalOfDerivedNetInputs.preMultiply(nextWeights.preMultiply(nextDelta));
 		return result;

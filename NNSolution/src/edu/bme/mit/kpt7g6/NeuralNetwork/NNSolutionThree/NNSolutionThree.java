@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 
+import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealMatrixFormat;
 
@@ -24,7 +25,7 @@ public class NNSolutionThree {
 		for(double[] input : inputValues){
 			network.setInputValues(input);
 			for(Layer layer : network.getNonInputLayers()){
-				RealMatrix pDerives = layer.computePartialDerivativeOfWeightsAndBiases();
+				RealMatrix pDerives = layer.computePartialDerivativeOfWeightsAndBiases(new ArrayRealVector(new double[]{1}));
 				System.out.println(formatter.format(pDerives));
 			}
 		}

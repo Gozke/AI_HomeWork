@@ -7,12 +7,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.math3.linear.RealMatrixFormat;
+import org.apache.commons.math3.linear.RealVectorFormat;
+
 import edu.bme.mit.kpt7g6.NeuralNetwork.ActivationFunctions.LinearActivationFunction;
 import edu.bme.mit.kpt7g6.NeuralNetwork.ActivationFunctions.ReLuActivationFunction;
 import edu.bme.mit.kpt7g6.NeuralNetwork.Structure.Layer;
 import edu.bme.mit.kpt7g6.NeuralNetwork.Structure.NeuralNetwork;
 
 public class NNSolutionUtils {
+	public static RealVectorFormat VECTOR_FORMATTER = new RealVectorFormat("", "", ",");
+	public static RealMatrixFormat MATRIX_FORMATTER= new RealMatrixFormat("", "", "", "", "\n", ",");
+	
 	public static List<double[]> readInputValues(BufferedReader stdInReader) throws NumberFormatException, IOException{
 		int noInputs = Integer.parseInt(stdInReader.readLine());
 		List<double[]> inputValuesList = new  ArrayList<>(noInputs);
@@ -45,7 +51,7 @@ public class NNSolutionUtils {
 		return network;
 	}
 	
-	private static int[] parseParamLine2IntArray(String paramLine){
+	public static int[] parseParamLine2IntArray(String paramLine){
 		String[] splitParam = paramLine.split(",");
 		int[] res = new int[splitParam.length];
 		
@@ -55,7 +61,7 @@ public class NNSolutionUtils {
 		return res;
 	}
 	
-	private static double[] parseParamLine2DoubleArray(String paramLine){
+	public static double[] parseParamLine2DoubleArray(String paramLine){
 		String[] splitParam = paramLine.split(",");
 		double[] res = new double[splitParam.length];
 		
@@ -64,4 +70,5 @@ public class NNSolutionUtils {
 		}
 		return res;	
 	}
+	
 }

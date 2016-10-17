@@ -3,7 +3,12 @@ package edu.bme.mit.kpt7g6.NeuralNetwork.Structure;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.math3.analysis.UnivariateFunction;
+import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
+
+import edu.bme.mit.kpt7g6.NeuralNetwork.Utils.CompleteInput;
+import edu.bme.mit.kpt7g6.NeuralNetwork.Utils.NNSolutionUtils;
 
 public class NeuralNetwork {
 	private InputLayer inputLayer;
@@ -19,14 +24,39 @@ public class NeuralNetwork {
 		layers = new ArrayList<>(numberOfOtherLayers);
 	}
 	
-	public RealVector calculateOutputForInputValues(double[] inputValues){
-		inputLayer.setInputValues(inputValues);
+	public RealVector calculateOutput(){
 		// We ask the last layer (ie. the output layer) to calculate it's output. That will start the avalanche.
 		return getOutputLayer().getOutput();
 	}
 	
+	public RealVector calculateOuputFor(RealVector input){
+		setInputVector(input);
+		return calculateOutput();
+	}
+
+	public void performLearning(List<CompleteInput> learningSamples, double braveness){
+		for(CompleteInput sample : learningSamples){
+			setInputVector(sample.getInputVector());
+			RealVector actualOutput = calculateOutput();
+			RealVector errorVector = sample.getExpectedOutput().subtract(actualOutput);
+			System.out.println("Kimenet: " +NNSolutionUtils.VECTOR_FORMATTER.format(actualOutput));
+			System.out.println("hiba*mu*2: " + errorVector.getEntry(0)*braveness*2);
+			
+			for (Layer layer : getNonInputLayers()) {
+				layer.updateWeightsAndBiases(new ArrayRealVector(errorVector), braveness);
+			}
+			for(Layer l : getNonInputLayers()){
+				System.out.println(l);
+			}
+		}
+	}
+	
 	public void setInputValues(double[] inputValues){
 		inputLayer.setInputValues(inputValues);
+	}
+	
+	public void setInputVector(RealVector inputV){
+		inputLayer.setInputValues(inputV.toArray());
 	}
 	
 	public void appendLayer(Layer layerToAppend){
@@ -56,7 +86,11 @@ public class NeuralNetwork {
 	public Ilayer getOutputLayer(){
 		return layers.isEmpty() ? inputLayer :  layers.get(layers.size()-1);
 	}
-
+	
+	public int getNumberOfInputs(){
+		return inputLayer.getNumerOfNuerons();
+	}
+	
 	@Override
 	public String toString() {
 		StringBuilder strRep = new StringBuilder();
@@ -67,6 +101,4 @@ public class NeuralNetwork {
 		}
 		return strRep.toString();
 	}
-	
-	
 }
