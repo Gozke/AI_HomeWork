@@ -53,10 +53,6 @@ public class NeuralNetwork {
 			for(Layer layer : getNonInputLayers()){
 				layer.updateWeightsAndBiases(updatedWeights.get(layer), updatedBias.get(layer));
 			}
-			for(Layer l : layers){
-				System.out.println(l);
-			}
-			System.out.println();
 		}
 	}
 	
