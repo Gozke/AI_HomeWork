@@ -20,7 +20,6 @@ public class Main {
 	private RealMatrix H;
 	private int numberOfBurnInSamples;
 	private int numberOfIterations;
-	private int numberOfUsefulSamples;
 
 	public Main(RealMatrix H) {
 		this.alfa_u = 1;
@@ -28,7 +27,6 @@ public class Main {
 		this.H = H;
 		numberOfBurnInSamples = 1;
 		numberOfIterations = 10;
-		numberOfUsefulSamples = numberOfIterations - numberOfBurnInSamples;
 	}
 
 	public ApproximationResult findApproximation(int I, int J, int L, double beta) {
@@ -37,44 +35,45 @@ public class Main {
 		RealMatrix sumV = new Array2DRowRealMatrix(L, J);
 		U = initializeByPrior(L, I, alfa_u);
 		V = initializeByPrior(L, J, alfa_v);
-
-		for (int iterationIndex = 0; iterationIndex < numberOfIterations + numberOfBurnInSamples; iterationIndex++) {
-			U = computeNewU();
-			V = computeNewV();
-
-			if (iterationIndex > numberOfBurnInSamples) {
-				sumU = sumU.add(U);
-				sumV = sumV.add(V);
-			}
+		
+		for (int iterationIndex = 0; iterationIndex < numberOfBurnInSamples; iterationIndex++) {
+			updateU();
+			updateV();
 		}
-		return new ApproximationResult(sumU.scalarMultiply(1.0 / numberOfUsefulSamples),
-				sumV.scalarMultiply(1.0 / numberOfUsefulSamples));
+		
+		// Separated to avoid branch prediction
+		for(int i = 0; i<numberOfIterations;i++){
+			updateU();
+			updateV();
+			sumU = sumU.add(U);
+			sumV = sumV.add(V);			
+		}
+		
+		return new ApproximationResult(
+				sumU.scalarMultiply(1.0 / numberOfIterations),
+				sumV.scalarMultiply(1.0 / numberOfIterations));
 	}
 
-	public RealMatrix computeNewU() {
-		RealMatrix newU = new Array2DRowRealMatrix(U.getRowDimension(), U.getColumnDimension());
+	public void updateU() {
 		for (int i = 0; i < U.getColumnDimension(); i++) {
 			RealMatrix lambda = computeLambda(V, alfa_u);
 			RealMatrix lambdaInverse = new LUDecomposition(lambda).getSolver().getInverse();
 			RealVector fi = computeFi(H.getRowVector(i), V, lambdaInverse);
 			MultivariateNormalDistribution distribution = new MultivariateNormalDistribution(fi.toArray(),
 					lambdaInverse.getData());
-			newU.setColumn(i, distribution.sample());
+			U.setColumn(i, distribution.sample());
 		}
-		return newU;
 	}
 
-	public RealMatrix computeNewV() {
-		RealMatrix newV = new Array2DRowRealMatrix(V.getRowDimension(), V.getColumnDimension());
+	public void updateV() {
 		for (int j = 0; j < V.getColumnDimension(); j++) {
 			RealMatrix lambda = computeLambda(U, alfa_v);
 			RealMatrix lambdaInverse = new LUDecomposition(lambda).getSolver().getInverse();
 			RealVector fi = computeFi(H.getColumnVector(j), U, lambdaInverse);
 			MultivariateNormalDistribution distribution = new MultivariateNormalDistribution(fi.toArray(),
 					lambdaInverse.getData());
-			newV.setColumn(j, distribution.sample());
+			V.setColumn(j, distribution.sample());
 		}
-		return newV;
 	}
 
 	public RealMatrix computeLambda(RealMatrix matrix, double alfa) {
@@ -89,12 +88,11 @@ public class Main {
 	public RealMatrix initializeByPrior(int numberOfRows, int numberOfColumns, double alpha) {
 		RealVector zeroVector = new ArrayRealVector(numberOfRows);
 		RealMatrix result = new Array2DRowRealMatrix(numberOfRows, numberOfColumns);
-		MultivariateNormalDistribution distr = new MultivariateNormalDistribution(zeroVector.toArray(),
-				Utils.createDiagonalMatrixOf(numberOfRows, 1.0 / alpha).getData());
+		MultivariateNormalDistribution distr = new MultivariateNormalDistribution(zeroVector.toArray(),Utils.createDiagonalMatrixOf(numberOfRows, 1.0 / alpha).getData());
 		for (int i = 0; i < numberOfColumns; i++) {
 			result.setColumn(i, distr.sample());
 		}
-		return new Array2DRowRealMatrix(numberOfRows, numberOfColumns);
+		return result;
 	}
 
 	public static class ApproximationResult {
@@ -102,13 +100,12 @@ public class Main {
 		public final RealMatrix V;
 
 		public ApproximationResult(RealMatrix U, RealMatrix V) {
-			this.U = U.copy();
-			this.V = V.copy();
+			this.U = U;
+			this.V = V;
 		}
 	}
 
 	public static void main(String[] args) throws IOException {
-		long starTime = System.currentTimeMillis(); 
 		BufferedReader stdInReader = new BufferedReader(new InputStreamReader(System.in));
 		double[] vectorDimensionsAndBeta = Utils.toDoubleArray(stdInReader.readLine(), ",");
 		int I = (int) vectorDimensionsAndBeta[0];
@@ -118,13 +115,13 @@ public class Main {
 
 		RealMatrix H = Utils.readMatrix(stdInReader, I, J);
 		Main sampler = new Main(H);
-		ApproximationResult appResult = sampler.findApproximation(I, J, L, beta);
+		ApproximationResult approximation = sampler.findApproximation(I, J, L, beta);
 
-		System.out.println(Utils.MATRIX_FORMATTER.format(appResult.U.transpose()));
+		System.out.println(Utils.MATRIX_FORMATTER.format(approximation.U.transpose()));
 		System.out.println();
-		System.out.println(Utils.MATRIX_FORMATTER.format(appResult.V.transpose()));
-		long stopTime = System.currentTimeMillis();
-		System.out.println((stopTime-starTime)/1000.0);
+		System.out.println(Utils.MATRIX_FORMATTER.format(approximation.V.transpose()));
+		
+		System.out.println("Hiba: " + Utils.calculateError(H,approximation.U.transpose().multiply(approximation.V)));
 	}
 
 }
